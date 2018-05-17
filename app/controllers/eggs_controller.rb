@@ -25,15 +25,15 @@ class EggsController < ApplicationController
       raise ActiveRecord::RecordNotFound, "Can't find contract."
     end
 
-    eggFactoryContract = web3.eth.contract(JSON.parse(contract_info.abi));
+    eggFactoryContract = web3.eth.contract(JSON.parse(contract_info.abi))
 
     eggFactory = eggFactoryContract.at(contract_info.address)
 
-    mock_valid_eggs = [0, 1]
+    activeEggs = eggFactory.listActiveEggs()
 
     response = Hash.new
 
-    mock_valid_eggs.each do |egg_id|
+    activeEggs.each do |egg_id|
       eggAmount = eggFactory.eggsOwned(params[:address], egg_id)
       if !eggAmount.blank?
         response[egg_id] = eggAmount
@@ -41,6 +41,52 @@ class EggsController < ApplicationController
     end
 
   	render json: response
+
+  end
+
+  def get_contract_information
+
+    contract_info = Contract.where("name": "EGG_FACTORY").first
+    if contract_info.blank?
+      raise ActiveRecord::RecordNotFound, "Can't find contract."
+    end
+
+    response = Hash.new
+    response["address"] = contract_info.address
+    response["abi"] = contract_info.abi
+
+    render json: response
+
+  end
+
+  def get_prices
+
+    web3 = get_web3
+
+    contract_info = Contract.where("name": "EGG_FACTORY").first
+    if contract_info.blank?
+      raise ActiveRecord::RecordNotFound, "Can't find contract."
+    end
+
+    eggFactoryContract = web3.eth.contract(JSON.parse(contract_info.abi))
+
+    eggFactory = eggFactoryContract.at(contract_info.address)
+
+    activeEggs = eggFactory.listActiveEggs()
+    puts activeEggs
+
+    response = Hash.new
+
+    activeEggs.each do |egg_id|
+      puts "Getting price for "+String(egg_id)
+      eggPrice = eggFactory.currentEggPrice(egg_id)
+      puts eggPrice
+      if !eggPrice.blank?
+        response[egg_id] = web3.eth.wei_to_ether(eggPrice);
+      end
+    end
+
+    render json: response
 
   end
 end
