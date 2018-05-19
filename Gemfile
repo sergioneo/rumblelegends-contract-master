@@ -5,6 +5,10 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+git "https://github.com/izetex/digest-sha3-ruby" do
+  gem 'digest-sha3'
+end
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.5'
@@ -36,6 +40,8 @@ gem 'jbuilder', '~> 2.5'
 gem 'web3-eth'
 
 gem 'dotenv-rails'
+
+gem 'rails_admin', '~> 1.3'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
