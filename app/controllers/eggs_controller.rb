@@ -80,6 +80,7 @@ class EggsController < ApplicationController
       eggPrice = eggFactory.currentEggPrice(egg_id)
       eggsSold = eggFactory.getPurchased(egg_id)
       if !eggPrice.blank?
+        response[egg_id] = Hash.new
         response[egg_id]['price'] = web3.eth.wei_to_ether(eggPrice);
         response[egg_id]['sold'] = eggsSold;
       end
