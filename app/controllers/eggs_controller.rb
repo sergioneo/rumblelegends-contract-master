@@ -73,16 +73,15 @@ class EggsController < ApplicationController
     eggFactory = eggFactoryContract.at(contract_info.address)
 
     activeEggs = eggFactory.listActiveEggs()
-    puts activeEggs
-
+    
     response = Hash.new
 
     activeEggs.each do |egg_id|
-      puts "Getting price for "+String(egg_id)
       eggPrice = eggFactory.currentEggPrice(egg_id)
-      puts eggPrice
+      eggsSold = eggFactory.getPurchased(egg_id)
       if !eggPrice.blank?
-        response[egg_id] = web3.eth.wei_to_ether(eggPrice);
+        response[egg_id]['price'] = web3.eth.wei_to_ether(eggPrice);
+        response[egg_id]['sold'] = eggsSold;
       end
     end
 
