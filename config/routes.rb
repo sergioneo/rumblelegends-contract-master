@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'beast/get_information/:id', to: 'beast#get_information'
+
   mount RailsAdmin::Engine => '/manager', as: 'rails_admin'
   get 'eggs/get_by_address'
   get 'eggs/get_contract_information'
