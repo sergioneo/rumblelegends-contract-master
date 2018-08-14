@@ -67,4 +67,10 @@ class BeastController < ApplicationController
 	render plain: beast_structure.to_json
 
   end
+
+  def get_price
+
+  	render json: {:price => 20.0}
+
+  end
 end
