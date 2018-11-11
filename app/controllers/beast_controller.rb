@@ -15,7 +15,7 @@ class BeastController < ApplicationController
   def get_information
 
   	if params[:id].blank?
-  		raise ActiveRecord::RecordNotFound, "Address not found."
+  		raise ActiveRecord::RecordNotFound, "Beast not found."
   	end
 
   	id = params[:id]
@@ -36,6 +36,7 @@ class BeastController < ApplicationController
     #  uint256 birthTime, uint256 sireId, uint256 matronId, uint256 siringWithId, uint256 cooldownIndex, uint256 generation, 
     #  uint256 genes 
     beast_attribute_list = beasts.getLegend(id.to_i)
+    owner = beasts.beastIndexToOwner(id.to_i)
 
   	beast_structure = {
 	    :race => beast_attribute_list[0],
@@ -54,6 +55,7 @@ class BeastController < ApplicationController
 	    :preferedAttribute => 0,
 	    :element => 0,
 	    :pedigree => 1,
+      :owner => owner,
 	    :attrs => {
 	        :strength => 1,
 	        :dexterity => 1,
@@ -70,7 +72,26 @@ class BeastController < ApplicationController
 
   def get_price
 
-  	render json: {:price => 20.0}
+    if params[:id].blank?
+      raise ActiveRecord::RecordNotFound, "Beast not found."
+    end
+
+    id = params[:id]
+
+    web3 = get_web3
+
+    contract_info = Contract.where("name": "SALE_AUCTION").first
+    if contract_info.blank?
+      raise ActiveRecord::RecordNotFound, "Can't find contract."
+    end
+
+    auctionContract = web3.eth.contract(JSON.parse(contract_info.abi))
+
+    auctions = auctionContract.at(contract_info.address)
+
+    price = auctions.getCurrentPrice(id)
+
+  	render json: {"price" => price}
 
   end
 end
